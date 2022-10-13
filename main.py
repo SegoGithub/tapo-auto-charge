@@ -1,9 +1,25 @@
 from PyP100 import PyP100
 import os
 import json
+import psutil
 
 def main(ip, email, password):
-    print(ip, email, password)
+    p100 = PyP100.P100(ip, email, password)
+    p100.handshake()
+    p100.login()
+
+    battery = psutil.sensors_battery()
+    plugged = battery.power_plugged
+    percent = battery.percent
+    print(battery)
+    if plugged and percent > 80:
+        p100.turnOff()
+        print("Charging and more than 80%, TAPO OFF")
+    elif not plugged and percent < 20:
+        p100.turnOn()
+        print("Not charging and less than 20%, TAPO ON")
+
+
 
 # check if ./usercerds.json exists
 if os.path.isfile("./usercreds.json"):
